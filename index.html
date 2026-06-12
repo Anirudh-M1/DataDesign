@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data & Design · Python Workshop</title>
+<meta name="description" content="A 45-minute hands-on introduction to data analysis and visualization with Python. No experience required.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,300;1,9..144,500&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap">
+<style>
+/* ─── Reset ─── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+
+/* ─── Design Tokens ─── */
+:root{
+  --cream:#F7F3ED;
+  --ink:#1A1614;
+  --ink-light:#3D3530;
+  --ink-muted:#7A6F68;
+  --ink-hint:#B0A79E;
+  --rust:#C94C2A;
+  --rust-light:#E8593C;
+  --rust-pale:#F9EDE9;
+  --teal:#0F6E56;
+  --teal-light:#1D9E75;
+  --teal-pale:#E1F5EE;
+  --blue:#185FA5;
+  --blue-light:#3B8BD4;
+  --blue-pale:#E6F1FB;
+  --amber:#BA7517;
+  --amber-light:#EF9F27;
+  --amber-pale:#FAEEDA;
+  --border:#DDD5CC;
+  --border-light:#EDE7E0;
+  --serif:'Fraunces', Georgia, serif;
+  --sans:'DM Sans', system-ui, sans-serif;
+  --mono:'DM Mono', 'Fira Mono', monospace;
+  --shadow-sm: 0 1px 3px rgba(26,22,20,.06), 0 1px 2px rgba(26,22,20,.04);
+  --shadow-md: 0 4px 16px rgba(26,22,20,.08), 0 2px 6px rgba(26,22,20,.04);
+  --shadow-lg: 0 16px 48px rgba(26,22,20,.12), 0 4px 16px rgba(26,22,20,.06);
+}
+
+body{
+  font-family:var(--sans);
+  background:var(--cream);
+  color:var(--ink);
+  line-height:1.65;
+  overflow-x:hidden;
+}
+
+/* ─── Nav ─── */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(247,243,237,.88);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border-light);
+  padding:0 32px;
+  display:flex;align-items:center;justify-content:space-between;
+  height:60px;
+}
+.nav-logo{
+  font-family:var(--serif);
+  font-weight:500;font-size:17px;
+  color:var(--ink);
+  display:flex;align-items:center;gap:10px;
+}
+.nav-logo-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--rust-light);
+  animation:pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.85)}}
+
+.nav-steps{
+  display:flex;align-items:center;gap:4px;
+}
+.nav-step{
+  display:flex;align-items:center;gap:6px;
+  padding:5px 12px;
+  border-radius:20px;
+  cursor:pointer;
+  font-size:12.5px;
+  font-weight:400;
+  color:var(--ink-muted);
+  transition:all .2s;
+  border:1px solid transparent;
+  text-decoration:none;
+}
+.nav-step:hover{background:rgba(201,76,42,.06);color:var(--rust)}
+.nav-step.active{
+  background:var(--rust-pale);
+  color:var(--rust);
+  border-color:rgba(201,76,42,.2);
+  font-weight:500;
+}
+.nav-step-num{
+  width:18px;height:18px;border-radius:50%;
+  background:var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:500;
+  color:var(--ink-muted);
+  transition:all .2s;
+  flex-shrink:0;
+}
+.nav-step.active .nav-step-num{background:var(--rust);color:white}
+.nav-step.done .nav-step-num{background:var(--teal);color:white}
+.nav-step.done{color:var(--teal-light)}
+
+.nav-cta{
+  font-size:12.5px;font-weight:500;
+  background:var(--ink);color:var(--cream);
+  border:none;border-radius:20px;
+  padding:6px 16px;cursor:pointer;
+  transition:all .2s;
+}
+.nav-cta:hover{background:var(--rust);transform:translateY(-1px)}
+
+/* ─── Hero ─── */
+.hero{
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  align-items:center;
+  padding:80px 64px 80px;
+  position:relative;
+  overflow:hidden;
+  gap:40px;
+}
+.hero-left{display:flex;flex-direction:column;justify-content:center;z-index:2}
+.hero-right{display:flex;align-items:center;justify-content:center;z-index:2;position:relative}
+#dfa-canvas-wrap{
+  width:100%;max-width:480px;aspect-ratio:1/1;
+  border-radius:16px;overflow:hidden;cursor:grab;position:relative;
+  box-shadow:0 24px 80px rgba(26,22,20,.13),0 4px 20px rgba(26,22,20,.07);
+}
+#dfa-canvas-wrap:active{cursor:grabbing}
+#dfa-canvas{display:block;width:100%!important;height:100%!important}
+.canvas-hint{
+  position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+  font-family:var(--mono);font-size:11px;
+  color:rgba(255,255,255,.5);background:rgba(0,0,0,.3);
+  border-radius:20px;padding:4px 14px;pointer-events:none;white-space:nowrap;
+  animation:hintfade 3s ease 2.5s forwards;
+}
+@keyframes hintfade{to{opacity:0}}
+.hero-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 60% 50% at 75% 40%, rgba(201,76,42,.06) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 20% 70%, rgba(15,110,86,.05) 0%, transparent 60%);
+  pointer-events:none;
+}
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(var(--border-light) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-light) 1px, transparent 1px);
+  background-size:48px 48px;
+  opacity:.4;
+  pointer-events:none;
+}
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr;padding:100px 24px 60px}
+  .hero-right{order:-1}
+  #dfa-canvas-wrap{max-width:300px}
+}
+
+.hero-eyebrow{
+  font-family:var(--mono);
+  font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--rust);
+  margin-bottom:24px;
+  display:flex;align-items:center;gap:10px;
+}
+.hero-eyebrow::before{
+  content:'';display:block;
+  width:32px;height:1px;background:var(--rust);
+}
+
+.hero-title{
+  font-family:var(--serif);
+  font-size:clamp(52px, 7vw, 92px);
+  font-weight:500;
+  line-height:1.05;
+  letter-spacing:-.02em;
+  color:var(--ink);
+  max-width:820px;
+  margin-bottom:28px;
+}
+.hero-title em{
+  font-style:italic;
+  color:var(--rust);
+}
+.hero-title .accent{
+  font-style:italic;
+  color:var(--teal);
+}
+
+.hero-sub{
+  font-size:18px;
+  font-weight:300;
+  color:var(--ink-light);
+  max-width:540px;
+  line-height:1.7;
+  margin-bottom:44px;
+}
+
+.hero-actions{
+  display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+}
+.btn-primary{
+  font-family:var(--sans);
+  font-size:15px;font-weight:500;
+  background:var(--ink);color:var(--cream);
+  border:none;border-radius:4px;
+  padding:14px 32px;
+  cursor:pointer;
+  transition:all .25s;
+  display:inline-flex;align-items:center;gap:10px;
+  text-decoration:none;
+}
+.btn-primary:hover{
+  background:var(--rust);
+  transform:translateY(-2px);
+  box-shadow:var(--shadow-md);
+}
+.btn-primary svg{transition:transform .2s}
+.btn-primary:hover svg{transform:translateX(4px)}
+
+.btn-ghost{
+  font-size:14px;color:var(--ink-muted);
+  background:none;border:1px solid var(--border);
+  border-radius:4px;padding:13px 24px;
+  cursor:pointer;transition:all .2s;
+  text-decoration:none;
+  display:inline-flex;align-items:center;gap:8px;
+}
+.btn-ghost:hover{border-color:var(--ink-muted);color:var(--ink)}
+
+.hero-meta{
+  display:flex;align-items:center;gap:24px;
+  flex-wrap:wrap;
+  margin-top:64px;
+  padding-top:32px;
+  border-top:1px solid var(--border-light);
+  max-width:820px;
+}
+.hero-stat{display:flex;flex-direction:column;gap:3px}
+.hero-stat-val{
+  font-family:var(--serif);
+  font-size:28px;font-weight:500;
+  color:var(--ink);
+}
+.hero-stat-label{font-size:12px;color:var(--ink-muted)}
+.hero-meta-div{width:1px;height:36px;background:var(--border)}
+
+/* ─── Section shell ─── */
+.section{
+  display:none;
+  min-height:calc(100vh - 60px);
+  padding:80px 64px;
+  max-width:1000px;
+  margin:0 auto;
+  animation:sectionIn .4s cubic-bezier(.22,1,.36,1) both;
+}
+.section.active{display:block}
+@keyframes sectionIn{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.section-header{
+  display:flex;align-items:flex-start;gap:24px;
+  margin-bottom:52px;
+  padding-bottom:40px;
+  border-bottom:1px solid var(--border-light);
+}
+.section-num-big{
+  font-family:var(--serif);
+  font-size:clamp(72px,10vw,120px);
+  font-weight:300;
+  line-height:1;
+  color:var(--border);
+  flex-shrink:0;
+  margin-top:-8px;
+  user-select:none;
+}
+.section-header-content{}
+.section-eyebrow{
+  font-family:var(--mono);
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--rust);
+  margin-bottom:10px;
+}
+.section-title{
+  font-family:var(--serif);
+  font-size:clamp(32px,4vw,48px);
+  font-weight:500;
+  line-height:1.1;
+  letter-spacing:-.01em;
+  color:var(--ink);
+  margin-bottom:12px;
+}
+.section-title em{font-style:italic;color:var(--rust)}
+.section-desc{
+  font-size:16px;
+  color:var(--ink-muted);
+  max-width:560px;
+  line-height:1.7;
+}
+
+/* ─── Time chip ─── */
+.time-chip{
+  display:inline-flex;align-items:center;gap:7px;
+  font-family:var(--mono);
+  font-size:11.5px;
+  color:var(--amber);
+  background:var(--amber-pale);
+  border:1px solid rgba(186,117,23,.2);
+  border-radius:20px;
+  padding:4px 12px;
+  margin-bottom:28px;
+}
+
+/* ─── Prose ─── */
+.prose{
+  font-size:16px;
+  color:var(--ink-light);
+  line-height:1.8;
+  margin-bottom:24px;
+  max-width:660px;
+}
+.prose strong{font-weight:500;color:var(--ink)}
+.prose code{
+  font-family:var(--mono);font-size:13px;
+  background:#EDE7E0;border-radius:3px;
+  padding:1px 5px;color:var(--rust);
+}
+
+/* ─── Code block ─── */
+.code-wrap{margin:28px 0}
+.code-label{
+  font-family:var(--mono);
+  font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-hint);
+  margin-bottom:8px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.code-block{
+  background:#1E1916;
+  border-radius:8px;
+  overflow:hidden;
+  box-shadow:var(--shadow-md);
+  position:relative;
+}
+.code-topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;
+  background:#161210;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.code-dots{display:flex;gap:6px}
+.code-dots span{
+  width:11px;height:11px;border-radius:50%;
+  background:#3D3530;
+}
+.code-dots span:nth-child(1){background:#C94C2A}
+.code-dots span:nth-child(2){background:#BA7517}
+.code-dots span:nth-child(3){background:#1D9E75}
+.code-filename{
+  font-family:var(--mono);font-size:11.5px;
+  color:rgba(255,255,255,.3);
+}
+.copy-btn{
+  font-family:var(--mono);
+  font-size:11px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:4px;
+  padding:3px 10px;
+  color:rgba(255,255,255,.45);
+  cursor:pointer;
+  transition:all .15s;
+}
+.copy-btn:hover{background:rgba(255,255,255,.12);color:rgba(255,255,255,.8)}
+.copy-btn.copied{color:#1D9E75;border-color:rgba(29,158,117,.4)}
+.code-body{
+  padding:22px 24px;
+  font-family:var(--mono);
+  font-size:13.5px;
+  line-height:1.8;
+  color:#C8C0B8;
+  overflow-x:auto;
+  white-space:pre;
+  tab-size:4;
+}
+
+/* Syntax colors */
+.kw{color:#3B8BD4}
+.fn{color:#1D9E75}
+.str{color:#C97B4A}
+.cm{color:#5C5048;font-style:italic}
+.num{color:#EF9F27}
+.imp{color:#9A8FE0}
+.op{color:#E8593C}
+.cls{color:#E8A87C}
+
+/* ─── Cards grid ─── */
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
+  gap:16px;
+  margin:28px 0;
+}
+.card{
+  background:white;
+  border:1px solid var(--border-light);
+  border-radius:8px;
+  padding:22px;
+  transition:all .2s;
+}
+.card:hover{
+  border-color:var(--border);
+  box-shadow:var(--shadow-sm);
+  transform:translateY(-2px);
+}
+.card-icon{font-size:22px;margin-bottom:10px;line-height:1}
+.card-title{
+  font-size:14px;font-weight:500;
+  color:var(--ink);
+  margin-bottom:6px;
+}
+.card-desc{
+  font-size:13px;color:var(--ink-muted);
+  line-height:1.55;
+}
+
+/* ─── Callout boxes ─── */
+.callout{
+  display:flex;gap:14px;
+  background:white;
+  border:1px solid var(--border-light);
+  border-left:3px solid var(--teal);
+  border-radius:0 8px 8px 0;
+  padding:16px 20px;
+  margin:24px 0;
+  font-size:14.5px;
+  color:var(--ink-light);
+  line-height:1.65;
+}
+.callout.warn{border-left-color:var(--amber)}
+.callout.info{border-left-color:var(--blue)}
+.callout strong{font-weight:500;color:var(--ink)}
+.callout-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+
+/* ─── Visual encoding demo ─── */
+.encoding-row{
+  display:flex;gap:12px;flex-wrap:wrap;
+  margin:20px 0;
+}
+.encoding-pill{
+  display:flex;align-items:center;gap:8px;
+  background:white;
+  border:1px solid var(--border-light);
+  border-radius:20px;
+  padding:6px 14px 6px 10px;
+  font-size:13px;color:var(--ink-muted);
+}
+.encoding-swatch{width:10px;height:10px;border-radius:50%}
+
+/* ─── Step indicators ─── */
+.steps-inline{
+  display:flex;flex-direction:column;gap:0;
+  margin:20px 0 28px;
+}
+.step-item{
+  display:flex;gap:20px;
+  padding:18px 0;
+  border-bottom:1px solid var(--border-light);
+}
+.step-item:last-child{border-bottom:none}
+.step-num{
+  font-family:var(--serif);
+  font-size:24px;font-weight:300;
+  color:var(--rust);
+  flex-shrink:0;
+  width:28px;
+  line-height:1;
+  margin-top:2px;
+}
+.step-content{}
+.step-title{font-size:15px;font-weight:500;margin-bottom:4px}
+.step-desc{font-size:14px;color:var(--ink-muted);line-height:1.6}
+
+/* ─── Divider ─── */
+.divider{
+  height:1px;
+  background:var(--border-light);
+  margin:36px 0;
+}
+
+/* ─── Navigation row ─── */
+.nav-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:60px;
+  padding-top:36px;
+  border-top:1px solid var(--border-light);
+}
+.nav-row-info{
+  font-size:13px;
+  color:var(--ink-hint);
+  font-style:italic;
+}
+.nav-row-btns{display:flex;gap:12px;align-items:center}
+
+.btn-nav-back{
+  font-size:13.5px;color:var(--ink-muted);
+  background:none;border:1px solid var(--border);
+  border-radius:4px;padding:10px 20px;
+  cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;gap:8px;
+}
+.btn-nav-back:hover{border-color:var(--ink-muted);color:var(--ink)}
+
+.btn-nav-next{
+  font-size:13.5px;font-weight:500;
+  background:var(--ink);color:var(--cream);
+  border:none;border-radius:4px;
+  padding:11px 28px;cursor:pointer;
+  transition:all .25s;
+  display:flex;align-items:center;gap:10px;
+}
+.btn-nav-next:hover{background:var(--rust);transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+.btn-nav-next svg,.btn-nav-back svg{transition:transform .18s}
+.btn-nav-next:hover svg{transform:translateX(3px)}
+.btn-nav-back:hover svg{transform:translateX(-3px)}
+
+/* ─── Bonus challenges ─── */
+.bonus-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin:20px 0;
+}
+.bonus-card{
+  background:white;
+  border:1px solid var(--border-light);
+  border-radius:8px;
+  padding:18px;
+  font-size:13.5px;
+}
+.bonus-card-tag{
+  font-family:var(--mono);
+  font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--rust);margin-bottom:8px;
+}
+.bonus-card-title{font-weight:500;margin-bottom:5px;font-size:14px}
+.bonus-card-desc{color:var(--ink-muted);line-height:1.55;font-size:13.5px}
+
+/* ─── Finale badge ─── */
+.finale-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:11.5px;
+  color:var(--rust);
+  background:var(--rust-pale);
+  border:1px solid rgba(201,76,42,.25);
+  border-radius:20px;
+  padding:5px 14px;
+  margin-bottom:20px;
+  letter-spacing:.04em;
+}
+
+/* ─── Footer / complete state ─── */
+.complete-banner{
+  background:var(--ink);
+  color:var(--cream);
+  padding:64px;
+  text-align:center;
+  margin-top:80px;
+  border-radius:12px;
+}
+.complete-title{
+  font-family:var(--serif);
+  font-size:40px;font-weight:500;
+  margin-bottom:12px;
+}
+.complete-title em{font-style:italic;color:var(--rust-light)}
+.complete-sub{
+  font-size:16px;color:rgba(247,243,237,.6);
+  margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto;
+  line-height:1.7;
+}
+.complete-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* ─── Progress bar bottom ─── */
+.progress-footer{
+  position:fixed;bottom:0;left:0;right:0;
+  height:3px;
+  background:var(--border-light);
+  z-index:99;
+}
+.progress-fill{
+  height:100%;
+  background:linear-gradient(90deg, var(--rust), var(--amber-light));
+  transition:width .4s cubic-bezier(.22,1,.36,1);
+}
+
+/* ─── Responsive ─── */
+@media(max-width:768px){
+  .nav-steps{display:none}
+  .hero{padding:100px 24px 60px}
+  .hero-title{font-size:42px}
+  .section{padding:60px 24px}
+  .section-header{flex-direction:column;gap:8px}
+  .section-num-big{font-size:56px}
+  .bonus-grid{grid-template-columns:1fr}
+  .hero-meta{gap:16px}
+  .code-body{font-size:12px}
+}
+
+/* ─── Scroll reveal ─── */
+.reveal{
+  opacity:0;transform:translateY(16px);
+  transition:opacity .5s, transform .5s;
+}
+.reveal.visible{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav">
+  <div class="nav-logo">
+    <div class="nav-logo-dot"></div>
+    Data &amp; Design
+  </div>
+  <div class="nav-steps" id="navSteps">
+    <a class="nav-step active" data-step="0" onclick="goTo(0);return false" href="#">
+      <span class="nav-step-num">1</span> Setup
+    </a>
+    <a class="nav-step" data-step="1" onclick="goTo(1);return false" href="#">
+      <span class="nav-step-num">2</span> Python basics
+    </a>
+    <a class="nav-step" data-step="2" onclick="goTo(2);return false" href="#">
+      <span class="nav-step-num">3</span> First chart
+    </a>
+    <a class="nav-step" data-step="3" onclick="goTo(3);return false" href="#">
+      <span class="nav-step-num">4</span> Real data
+    </a>
+    <a class="nav-step" data-step="4" onclick="goTo(4);return false" href="#">
+      <span class="nav-step-num">5</span> Final viz
+    </a>
+  </div>
+  <button class="nav-cta" onclick="goTo(0)">Start workshop</button>
+</nav>
+
+<!-- Progress bar -->
+<div class="progress-footer">
+  <div class="progress-fill" id="progressFill" style="width:0%"></div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     HERO
+══════════════════════════════════════════ -->
+<section id="hero-section" style="display:block">
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+
+    <!-- LEFT: text -->
+    <div class="hero-left">
+      <p class="hero-eyebrow">DFA @ UIUC · Python Workshop</p>
+
+      <h1 class="hero-title">
+        From zero<br>to <em>beautiful</em><br>
+        <span class="accent">data viz</span>
+      </h1>
+
+      <p class="hero-sub">
+        A 45-minute hands-on introduction to data analysis and visualization with Python.
+        No experience required — just a Google account.
+      </p>
+
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="goTo(0)">
+          Begin workshop
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <a class="btn-ghost" href="https://colab.research.google.com" target="_blank" rel="noopener">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M8 1.5A6.5 6.5 0 118 14.5 6.5 6.5 0 018 1.5z" stroke="currentColor" stroke-width="1.2"/><path d="M6 5l4 2.5L6 10V5z" fill="currentColor"/></svg>
+          Open Colab
+        </a>
+      </div>
+
+      <div class="hero-meta">
+        <div class="hero-stat">
+          <span class="hero-stat-val">45</span>
+          <span class="hero-stat-label">minutes total</span>
+        </div>
+        <div class="hero-meta-div"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-val">5</span>
+          <span class="hero-stat-label">sections</span>
+        </div>
+        <div class="hero-meta-div"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-val">0</span>
+          <span class="hero-stat-label">experience needed</span>
+        </div>
+        <div class="hero-meta-div"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-val">1</span>
+          <span class="hero-stat-label">stunning final chart</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: 3D DFA logo -->
+    <div class="hero-right">
+      <div id="dfa-canvas-wrap">
+        <canvas id="dfa-canvas"></canvas>
+        <div class="canvas-hint">drag to rotate · scroll to zoom</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Three.js 3D DFA Logo -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  const wrap = document.getElementById('dfa-canvas-wrap');
+  const canvas = document.getElementById('dfa-canvas');
+
+  // ── Renderer ──
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  // ── Scene ──
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x7A7368); // DFA grey
+
+  // ── Camera ──
+  const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+  camera.position.set(0, 0, 7.5);
+
+  // ── Lights ──
+  const ambient = new THREE.AmbientLight(0xffffff, 0.55);
+  scene.add(ambient);
+
+  const key = new THREE.DirectionalLight(0xffffff, 1.1);
+  key.position.set(5, 8, 7);
+  key.castShadow = true;
+  scene.add(key);
+
+  const fill = new THREE.DirectionalLight(0xffeedd, 0.35);
+  fill.position.set(-6, 2, 4);
+  scene.add(fill);
+
+  const rim = new THREE.DirectionalLight(0xaaccff, 0.25);
+  rim.position.set(0, -5, -6);
+  scene.add(rim);
+
+  // ── Materials ──
+  const matGrey  = new THREE.MeshStandardMaterial({ color: 0x6B6560, roughness: 0.45, metalness: 0.08 });
+  const matWhite = new THREE.MeshStandardMaterial({ color: 0xF2EEE8, roughness: 0.35, metalness: 0.05 });
+  const matOrange= new THREE.MeshStandardMaterial({ color: 0xE8920A, roughness: 0.3,  metalness: 0.1  });
+  const matEdge  = new THREE.MeshStandardMaterial({ color: 0x4A4642, roughness: 0.5,  metalness: 0.0  });
+
+  // ── Root group (everything rotates together) ──
+  const root = new THREE.Group();
+  scene.add(root);
+
+  // ── Background slab (the square logo plate) ──
+  const plateGeo = new THREE.BoxGeometry(5.6, 5.6, 0.35);
+  const plate    = new THREE.Mesh(plateGeo, matGrey);
+  plate.receiveShadow = true;
+  root.add(plate);
+
+  // Thin bevel edge strip
+  const edgeGeo = new THREE.BoxGeometry(5.65, 5.65, 0.38);
+  const edge    = new THREE.Mesh(edgeGeo, matEdge);
+  edge.position.z = -0.02;
+  root.add(edge);
+
+  // ── Helper: extruded box letter piece ──
+  function box(w, h, d, x, y, z, mat) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+    m.position.set(x, y, z);
+    m.castShadow = true;
+    m.receiveShadow = true;
+    root.add(m);
+    return m;
+  }
+
+  const D = 0.30; // letter depth
+  const Z = 0.175 + D / 2; // sits on plate surface
+
+  // ──────────────────────────────────────────
+  // LETTER D  (top-left)  centre ~(-1.4, 1.05)
+  // Built from 3 rectangles: left spine + top bar + bottom bar
+  // Curved part = cylinder segment
+  // ──────────────────────────────────────────
+  const DX = -1.42, DY = 1.05;
+
+  // Vertical spine
+  box(0.32, 1.68, D, DX - 0.54, DY, Z, matWhite);
+  // Top bar
+  box(0.72, 0.30, D, DX - 0.14, DY + 0.69, Z, matWhite);
+  // Bottom bar
+  box(0.72, 0.30, D, DX - 0.14, DY - 0.69, Z, matWhite);
+  // Middle fill approximation (3 slices for the arc)
+  box(0.38, 0.80, D, DX + 0.26, DY, Z, matWhite);
+  box(0.22, 0.50, D, DX + 0.46, DY, Z, matWhite);
+  // Right curved cap
+  const capGeo = new THREE.CylinderGeometry(0.56, 0.56, D, 20, 1, false, -Math.PI/2, Math.PI);
+  const capMesh = new THREE.Mesh(capGeo, matWhite);
+  capMesh.rotation.x = Math.PI / 2;
+  capMesh.rotation.z = Math.PI / 2;
+  capMesh.position.set(DX + 0.05, DY, Z);
+  capMesh.castShadow = true;
+  root.add(capMesh);
+
+  // ──────────────────────────────────────────
+  // LETTER F  (top-right)  centre ~(1.05, 1.05)
+  // ──────────────────────────────────────────
+  const FX = 1.08, FY = 1.05;
+
+  // Vertical spine
+  box(0.30, 1.70, D, FX - 0.52, FY, Z, matWhite);
+  // Top bar (full width)
+  box(1.12, 0.30, D, FX + 0.01, FY + 0.70, Z, matWhite);
+  // Middle bar (shorter)
+  box(0.82, 0.28, D, FX - 0.14, FY + 0.12, Z, matWhite);
+
+  // ──────────────────────────────────────────
+  // ORANGE STAR  (bottom-left)  centre ~(-1.42, -1.05)
+  // Built with a LatheGeometry / custom star shape
+  // ──────────────────────────────────────────
+  function starShape(outerR, innerR, points) {
+    const shape = new THREE.Shape();
+    for (let i = 0; i < points * 2; i++) {
+      const angle = (i / (points * 2)) * Math.PI * 2 - Math.PI / 2;
+      const r = i % 2 === 0 ? outerR : innerR;
+      const x = Math.cos(angle) * r;
+      const y = Math.sin(angle) * r;
+      if (i === 0) shape.moveTo(x, y);
+      else shape.lineTo(x, y);
+    }
+    shape.closePath();
+    return shape;
+  }
+
+  const star = new THREE.Mesh(
+    new THREE.ExtrudeGeometry(starShape(0.78, 0.32, 5), {
+      depth: D,
+      bevelEnabled: true,
+      bevelThickness: 0.04,
+      bevelSize: 0.03,
+      bevelSegments: 3
+    }),
+    matOrange
+  );
+  star.position.set(-1.42 - 0.00, -1.05 - 0.00, 0.175);
+  star.castShadow = true;
+  root.add(star);
+
+  // ──────────────────────────────────────────
+  // LETTER A  (bottom-right)  centre ~(1.05, -1.05)
+  // Two diagonal legs + crossbar
+  // ──────────────────────────────────────────
+  const AX = 1.05, AY = -1.05;
+
+  // Left leg (rotated)
+  const legL = new THREE.Mesh(new THREE.BoxGeometry(0.30, 1.75, D), matWhite);
+  legL.rotation.z = 0.30;
+  legL.position.set(AX - 0.45, AY + 0.02, Z);
+  legL.castShadow = true;
+  root.add(legL);
+
+  // Right leg (rotated other way)
+  const legR = new THREE.Mesh(new THREE.BoxGeometry(0.30, 1.75, D), matWhite);
+  legR.rotation.z = -0.30;
+  legR.position.set(AX + 0.45, AY + 0.02, Z);
+  legR.castShadow = true;
+  root.add(legR);
+
+  // Crossbar
+  box(0.82, 0.26, D, AX, AY - 0.10, Z, matWhite);
+
+  // ── Orbit controls (manual) ──
+  let isDragging = false;
+  let prevX = 0, prevY = 0;
+  let rotX = 0.18, rotY = -0.22;
+  let velX = 0, velY = 0.004; // auto-spin
+  let userInteracted = false;
+  let zoom = 7.5;
+
+  function onDown(e) {
+    isDragging = true;
+    const pt = e.touches ? e.touches[0] : e;
+    prevX = pt.clientX; prevY = pt.clientY;
+    userInteracted = true;
+    velX = 0; velY = 0;
+  }
+  function onMove(e) {
+    if (!isDragging) return;
+    const pt = e.touches ? e.touches[0] : e;
+    const dx = pt.clientX - prevX;
+    const dy = pt.clientY - prevY;
+    rotY += dx * 0.012;
+    rotX += dy * 0.012;
+    rotX = Math.max(-1.2, Math.min(1.2, rotX));
+    velX = dy * 0.001;
+    velY = dx * 0.001;
+    prevX = pt.clientX; prevY = pt.clientY;
+  }
+  function onUp() { isDragging = false; }
+  function onWheel(e) {
+    e.preventDefault();
+    zoom += e.deltaY * 0.01;
+    zoom = Math.max(4, Math.min(14, zoom));
+  }
+
+  wrap.addEventListener('mousedown', onDown);
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onUp);
+  wrap.addEventListener('touchstart', onDown, { passive: true });
+  window.addEventListener('touchmove', onMove, { passive: true });
+  window.addEventListener('touchend', onUp);
+  wrap.addEventListener('wheel', onWheel, { passive: false });
+
+  // ── Resize ──
+  function resize() {
+    const w = wrap.clientWidth;
+    const h = wrap.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  const ro = new ResizeObserver(resize);
+  ro.observe(wrap);
+  resize();
+
+  // ── Animate ──
+  let last = 0;
+  function animate(t) {
+    requestAnimationFrame(animate);
+    const dt = Math.min((t - last) / 1000, 0.05);
+    last = t;
+
+    if (!isDragging) {
+      if (!userInteracted) {
+        // gentle auto-rotate
+        rotY += 0.006;
+      } else {
+        // coast with damping
+        rotY += velY;
+        rotX += velX;
+        velY *= 0.94;
+        velX *= 0.94;
+      }
+    }
+
+    root.rotation.x = rotX;
+    root.rotation.y = rotY;
+    camera.position.z = zoom;
+
+    renderer.render(scene, camera);
+  }
+  requestAnimationFrame(animate);
+})();
+</script>
+
+<!-- ═══════════════════════════════════════
+     SEC 0 · Setup
+══════════════════════════════════════════ -->
+<section class="section" id="sec-0">
+  <div class="section-header">
+    <div class="section-num-big">01</div>
+    <div class="section-header-content">
+      <p class="section-eyebrow">Getting started · ~5 min</p>
+      <h2 class="section-title">Let's get <em>set up</em></h2>
+      <p class="section-desc">No software installs. We're using Google Colab — a free, browser-based Python environment used by researchers at Google, NASA, and every major data lab.</p>
+    </div>
+  </div>
+
+  <div class="time-chip">⏱ ~5 minutes · everyone does this together</div>
+
+  <div class="steps-inline">
+    <div class="step-item">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">Open Google Colab</div>
+        <div class="step-desc">Go to <strong><a href="https://colab.research.google.com" target="_blank" style="color:var(--rust)">colab.research.google.com</a></strong> and sign in with your Google account. If you don't have one, create a free account at google.com.</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">Create a new notebook</div>
+        <div class="step-desc">Click <strong>New notebook</strong>. You'll see a blank page with a cell — that rectangular input box is where we write all our code.</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">Learn to run a cell</div>
+        <div class="step-desc">Click the ▶ play button on the left edge of a cell, or press <strong>Shift + Enter</strong>. The code runs and output appears directly beneath it.</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">Run the setup cell below</div>
+        <div class="step-desc">Copy the code below into your first cell and run it. It installs our visualization libraries. This only takes about 20 seconds.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-label">
+      <span>Cell 1 — Install &amp; import libraries</span>
+      <span style="color:var(--teal)">copy this into Colab →</span>
+    </div>
+    <div class="code-block">
+      <div class="code-topbar">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span class="code-filename">setup.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <div class="code-body"><span class="cm"># The ! means "run this as a terminal command, not Python"</span>
+<span class="cm"># matplotlib  →  the world's most popular charting engine</span>
+<span class="cm"># seaborn     →  makes matplotlib look beautiful automatically</span>
+
+<span class="fn">!</span>pip install matplotlib seaborn <span class="str">-q</span>
+
+<span class="cm"># Import them so we can use them in our code</span>
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">import</span> seaborn <span class="kw">as</span> sns
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+<span class="fn">print</span>(<span class="str">"✅ All libraries loaded. Let's go!"</span>)</div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <span class="callout-icon">✅</span>
+    <div><strong>You should see:</strong> A green "✅ All libraries loaded. Let's go!" message beneath the cell. Once everyone has this, we move on. If you see a red error instead, make sure you're signed into Google and try running the cell again.</div>
+  </div>
+
+  <div class="callout info">
+    <span class="callout-icon">💡</span>
+    <div><strong>No Google account?</strong> Use <a href="https://replit.com" target="_blank" style="color:var(--blue)">replit.com</a> as an alternative — create a free account, start a Python repl, and the libraries will already be available.</div>
+  </div>
+
+  <div class="nav-row">
+    <span class="nav-row-info">Wait for everyone's ✅ before continuing</span>
+    <div class="nav-row-btns">
+      <button class="btn-nav-next" onclick="goTo(1)">
+        Python basics
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SEC 1 · Python basics
+══════════════════════════════════════════ -->
+<section class="section" id="sec-1">
+  <div class="section-header">
+    <div class="section-num-big">02</div>
+    <div class="section-header-content">
+      <p class="section-eyebrow">The language · ~7 min</p>
+      <h2 class="section-title">Python in <em>7 minutes</em></h2>
+      <p class="section-desc">You only need three ideas to do real data work: variables, lists, and DataFrames. Everything else follows from these.</p>
+    </div>
+  </div>
+
+  <div class="time-chip">⏱ ~7 minutes · follow along, then experiment</div>
+
+  <p class="prose">Python reads almost like English. That's intentional — it was designed to be understandable by humans first, computers second. Let's start with the absolute basics.</p>
+
+  <div class="code-wrap">
+    <div class="code-label">Cell 2 — Variables &amp; lists</div>
+    <div class="code-block">
+      <div class="code-topbar">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span class="code-filename">basics.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <div class="code-body"><span class="cm"># A variable is a labelled box that stores a value</span>
+school_name = <span class="str">"UIUC"</span>       <span class="cm"># text (called a "string")</span>
+year        = <span class="num">2024</span>           <span class="cm"># a whole number</span>
+gpa         = <span class="num">3.85</span>           <span class="cm"># a decimal number</span>
+is_fun      = <span class="kw">True</span>           <span class="cm"># a yes/no value (Boolean)</span>
+
+<span class="fn">print</span>(school_name)           <span class="cm"># → UIUC</span>
+<span class="fn">print</span>(year + <span class="num">1</span>)             <span class="cm"># → 2025  (math works!)</span>
+<span class="fn">print</span>(<span class="str">f"GPA: </span>{gpa}<span class="str">"</span>)         <span class="cm"># → GPA: 3.85</span>
+
+<span class="cm"># A list holds multiple values in order (like a spreadsheet column)</span>
+majors = [<span class="str">"ID"</span>, <span class="str">"GD"</span>, <span class="str">"Arch"</span>, <span class="str">"GD"</span>, <span class="str">"ID"</span>]
+scores = [<span class="num">87</span>, <span class="num">94</span>, <span class="num">78</span>, <span class="num">91</span>, <span class="num">82</span>]
+
+<span class="fn">print</span>(majors[<span class="num">0</span>])            <span class="cm"># → "ID"  (counting starts at 0!)</span>
+<span class="fn">print</span>(<span class="fn">len</span>(scores))           <span class="cm"># → 5   (how many items)</span>
+<span class="fn">print</span>(<span class="fn">sum</span>(scores) / <span class="fn">len</span>(scores)) <span class="cm"># → 86.4 (the average)</span></div>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <span class="callout-icon">⚠</span>
+    <div><strong>Counting starts at zero.</strong> <code>majors[0]</code> gives the first item, <code>majors[1]</code> gives the second. This trips up almost everyone at first — you'll get used to it in about 10 minutes.</div>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-label">Cell 3 — The DataFrame (your spreadsheet in Python)</div>
+    <div class="code-block">
+      <div class="code-topbar">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span class="code-filename">dataframe.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <div class="code-body"><span class="cm"># A DataFrame is a spreadsheet — columns of related data</span>
+<span class="cm"># We build one by giving pandas a dictionary: { column_name: [values] }</span>
+
+data = {
+    <span class="str">"name"</span>:     [<span class="str">"Alex"</span>, <span class="str">"Jordan"</span>, <span class="str">"Sam"</span>, <span class="str">"Taylor"</span>, <span class="str">"River"</span>],
+    <span class="str">"major"</span>:    [<span class="str">"ID"</span>,   <span class="str">"GD"</span>,     <span class="str">"Arch"</span>, <span class="str">"GD"</span>,    <span class="str">"ID"</span>   ],
+    <span class="str">"projects"</span>: [<span class="num">12</span>,    <span class="num">8</span>,       <span class="num">15</span>,    <span class="num">10</span>,     <span class="num">9</span>     ],
+    <span class="str">"grade"</span>:    [<span class="num">3.7</span>,   <span class="num">3.2</span>,     <span class="num">3.9</span>,   <span class="num">3.5</span>,    <span class="num">3.4</span>   ]
+}
+
+df = pd.DataFrame(data)   <span class="cm"># pd is our alias for pandas</span>
+
+<span class="fn">print</span>(df)                 <span class="cm"># show the whole table</span>
+<span class="fn">print</span>(df[<span class="str">"grade"</span>].mean()) <span class="cm"># average of the grade column → 3.54</span>
+<span class="fn">print</span>(df.describe())      <span class="cm"># summary stats: mean, min, max, etc.</span></div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <span class="callout-icon">💡</span>
+    <div><strong>Mental model:</strong> Think of a DataFrame like an Illustrator artboard with organized layers. Each column is a category of information, each row is one "thing" (a person, a product, a data point). Almost everything in data analysis is transforming this table.</div>
+  </div>
+
+  <p class="prose">Run both cells. You should see your table printed with all five students. That's real data — you built it from scratch. <strong>Try adding a sixth student</strong> by adding their info to each list, then re-running.</p>
+
+  <div class="nav-row">
+    <div class="nav-row-btns">
+      <button class="btn-nav-back" onclick="goTo(0)">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13 8H3M7 12l-4-4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back
+      </button>
+      <button class="btn-nav-next" onclick="goTo(2)">
+        Your first chart
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SEC 2 · First chart
+══════════════════════════════════════════ -->
+<section class="section" id="sec-2">
+  <div class="section-header">
+    <div class="section-num-big">03</div>
+    <div class="section-header-content">
+      <p class="section-eyebrow">Visualization · ~8 min</p>
+      <h2 class="section-title">Your first <em>chart</em></h2>
+      <p class="section-desc">Two lines of code. A real chart. Then we'll make it beautiful.</p>
+    </div>
+  </div>
+
+  <div class="time-chip">⏱ ~8 minutes · run each cell, discuss what changes</div>
+
+  <p class="prose">Seaborn is built on top of matplotlib and handles all the aesthetic decisions for you by default. Let's start with the simplest possible chart and build up from there.</p>
+
+  <div class="code-wrap">
+    <div class="code-label">Cell 4 — The simplest possible chart (2 lines)</div>
+    <div class="code-block">
+      <div class="code-topbar">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span class="code-filename">first_chart.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <div class="code-body"><span class="cm"># sns.set_theme() applies beautiful defaults — always call this first</span>
+sns.set_theme(style=<span class="str">"whitegrid"</span>, palette=<span class="str">"muted"</span>)
+
+<span class="cm"># That's it. Two lines to make a chart.</span>
+sns.barplot(data=df, x=<span class="str">"name"</span>, y=<span class="str">"projects"</span>)
+plt.show()                    <span class="cm"># renders the chart</span></div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <span class="callout-icon">👁</span>
+    <div><strong>You should see:</strong> A clean bar chart with the five student names on the x-axis and their project counts on the y-axis. Height encodes quantity — taller bar = more projects.</div>
+  </div>
+
+  <p class="prose">Now let's add more information to the same chart by using <strong>color as a second visual channel</strong>. This is exactly how information designers think — every visual property (position, size, color, shape) can encode a dimension of data.</p>
+
+  <div class="encoding-row">
+    <div class="encoding-pill">
+      <div class="encoding-swatch" style="background:var(--rust-light)"></div>
+      Position (x) → name
+    </div>
+    <div class="encoding-pill">
+      <div class="encoding-swatch" style="background:var(--teal-light)"></div>
+      Height (y) → # of projects
+    </div>
+    <div class="encoding-pill">
+      <div class="encoding-swatch" style="background:var(--blue-light)"></div>
+      Color (hue) → major
+    </div>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-label">Cell 5 — Color as information</div>
+    <div class="code-block">
+      <div class="code-topbar">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span class="code-filename">color_chart.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <div class="code-body"><span class="cm"># fig, ax = the canvas and the drawing area</span>
+<span class="cm"># figsize = (width, height) in inches</span>
+fig, ax = plt.subplots(figsize=(<span class="num">8</span>, <span class="num">5</span>))
+
+sns.barplot(
+    data=df,
+    x=<span class="str">"name"</span>,
+    y=<span class="str">"projects"</span>,
+    hue=<span class="str">"major"</span>,      <span class="cm"># color encodes major (try "grade" instead!)</span>
+    palette=<span class="str">"Set2"</span>,   <span class="cm"># try: "pastel", "husl", "muted", "dark"</span>
+    ax=ax
+)
+
+ax.set_title(<span class="str">"Projects completed by student"</span>, fontsize=<span class="num">14</span>, pad=<span class="num">12</span>)
+ax.set_xlabel(<span class="str">"Student"</span>)
+ax.set_ylabel(<span class="str">"Projects completed"</span>)
+ax.legend(title=<span class="str">"Major"</span>)
+ax.spines[<span class="str">"top"</span>].set_visible(<span class="kw">False</span>)     <span class="cm"># clean up the frame</span>
+ax.spines[<span class="str">"right"</span>].set_visible(<span class="kw">False</span>)
+
+plt.tight_layout()
+plt.show()</div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <span class="callout-icon">🎨</span>
+    <div><strong>Try this:</strong> Change <code>palette="Set2"</code> to <code>palette="pastel"</code>, then to <code>palette="dark"</code>. Re-run the cell each time. As a designer, choosing a palette is often the most consequential decision you'll make for a visualization.</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <p class="prose" style="font-size:15px;font-style:italic;color:var(--ink-muted)">
+    "Every pixel in a data visualization should earn its place. Remove anything that doesn't communicate information."
+    <br><span style="font-style:normal;font-size:13px;color:var(--ink-hint)">— Edward Tufte, data visualization pioneer</span>
+  </p>
+
+  <div class="cards" style="margin-top:32px">
+    <div class="card">
+      <div class="card-icon">📊</div>
+      <div class="card-title">Bar chart</div>
+      <div class="card-desc">Compare quantities across categories. Bar height = amount. Best for: survey results, rankings, comparisons.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">📈</div>
+      <div class="card-title">Line chart</div>
+      <div class="card-desc">Show change over time. The slope tells the story. Best for: trends, time series, progress.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">⭕</div>
+      <div class="card-title">Scatter plot</div>
+      <div class="card-desc">Show relationships between two variables. Each dot = one thing. Best for: correlations, clusters.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔥</div>
+      <div class="card-title">Heatmap</div>
+      <div class="card-desc">Show intensity across two categories. Color = value. Best for: matrices, frequency tables.</div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <div class="nav-row-btns">
+      <button class="btn-nav-back" onclick="goTo(1)">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13 8H3M7 12l-4-4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back
+      </button>
+      <button class="btn-nav-next" onclick="goTo(3)">
+        Real data
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SEC 3 · Real data
+══════════════════════════════════════════ -->
+<section class="section" id="sec-3">
+  <div class="section-header">
+    <div class="section-num-big">04</div>
+    <div class="section-header-content">
+      <p class="section-eyebrow">Real-world data · ~8 min</p>
+      <h2 class="section-title">Working with <em>real data</em></h2>
+      <p class="section-desc">Seaborn ships with real research datasets. We'll use penguin measurements from Antarctica — 344 birds, 3 species, collected by real scientists.</p>
+    </div>
+  </div>
+
+  <div class="time-chip">⏱ ~8 minutes · explore, don't just run</div>
+
+  <p class="prose">Real datasets are messier, larger, and more interesting than example data we write by hand. The <strong>Palmer Penguins</strong> dataset is a staple of data science teaching — it's beautiful to visualize and has rich structure to discover.</p>
+
+  <div class="code-wrap">
+    <div class="code-label">Cell 6 — Load &amp; explore the dataset</div>
+    <div class="code-block">
+      <div class="code-topbar">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span class="code-filename">load_data.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <div class="code-body"><span class="cm"># Load the built-in penguins dataset (real Antarctic research!)</span>
+penguins = sns.load_dataset(<span class="str">"penguins"</span>)
+
+<span class="cm"># Always explore before you visualize</span>
+<span class="fn">print</span>(<span class="str">"Shape:"</span>, penguins.shape)        <span class="cm"># (344, 7) → 344 rows, 7 columns</span>
+<span class="fn">print</span>(<span class="str">"\nColumns:"</span>, penguins.columns)    <span class="cm"># what data do we have?</span>
+<span class="fn">print</span>(<span class="str">"\nFirst 5 rows:"</span>)
+<span class="fn">print</span>(penguins.head())
+
+<span class="fn">print</span>(<span class="str">"\nSpecies in the dataset:"</span>)
+<span class="fn">print</span>(penguins[<span class="str">"species"</span>].value_counts()) <span class="cm"># how many of each?</span>
+
+<span class="fn">print</span>(<span class="str">"\nSummary statistics:"</span>)
+<span class="fn">print</span>(penguins.describe())</div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <span class="callout-icon">🐧</span>
+    <div><strong>What you'll see:</strong> 344 penguins measured by flipper length, bill dimensions, body mass, and island location. Three species: Adelie (152), Chinstrap (68), Gentoo (124). Some rows have missing values — <code>describe()</code> only shows you the rows with complete data.</div>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-label">Cell 7 — Scatter plot with three visual encodings</div>
+    <div class="code-block">
+      <div class="code-topbar">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span class="code-filename">scatter.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <div class="code-body"><span class="cm"># This single chart encodes four variables simultaneously:</span>
+<span class="cm">#   x position  →  flipper length</span>
+<span class="cm">#   y position  →  body mass</span>
+<span class="cm">#   color       →  species</span>
+<span class="cm">#   shape       →  species  (redundant encoding = more accessible!)</span>
+
+fig, ax = plt.subplots(figsize=(<span class="num">9</span>, <span class="num">6</span>))
+
+sns.scatterplot(
+    data=penguins,
+    x=<span class="str">"flipper_length_mm"</span>,
+    y=<span class="str">"body_mass_g"</span>,
+    hue=<span class="str">"species"</span>,
+    style=<span class="str">"species"</span>,           <span class="cm"># shape redundancy helps colorblind readers</span>
+    palette=[<span class="str">"#E8593C"</span>, <span class="str">"#3B8BD4"</span>, <span class="str">"#1D9E75"</span>],
+    alpha=<span class="num">0.8</span>,                 <span class="cm"># transparency for overlapping points</span>
+    s=<span class="num">80</span>,                      <span class="cm"># dot size</span>
+    ax=ax
+)
+
+ax.set_title(<span class="str">"Antarctic Penguins · Flipper Length vs Body Mass"</span>, fontsize=<span class="num">14</span>, pad=<span class="num">12</span>)
+ax.set_xlabel(<span class="str">"Flipper Length (mm)"</span>)
+ax.set_ylabel(<span class="str">"Body Mass (g)"</span>)
+ax.spines[<span class="str">"top"</span>].set_visible(<span class="kw">False</span>)
+ax.spines[<span class="str">"right"</span>].set_visible(<span class="kw">False</span>)
+
+plt.tight_layout()
+plt.show()</div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <span class="callout-icon">✨</span>
+    <div><strong>Notice:</strong> The three species form distinct clusters — you can see the pattern emerge without being told what to look for. That's the power of good visualization. It reveals structure that was invisible in the raw numbers. <strong>Now try changing <code>"flipper_length_mm"</code> to <code>"bill_length_mm"</code></strong> — how do the clusters shift?</div>
+  </div>
+
+  <div class="callout info">
+    <span class="callout-icon">🔬</span>
+    <div><strong>You're doing exploratory data analysis.</strong> EDA is what data scientists spend 60–70% of their time doing — looking at data from different angles to understand its structure before drawing conclusions. You just did it.</div>
+  </div>
+
+  <div class="nav-row">
+    <div class="nav-row-btns">
+      <button class="btn-nav-back" onclick="goTo(2)">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13 8H3M7 12l-4-4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back
+      </button>
+      <button class="btn-nav-next" onclick="goTo(4)">
+        Final visualization
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SEC 4 · Final visualization
+══════════════════════════════════════════ -->
+<section class="section" id="sec-4">
+  <div class="section-header">
+    <div class="section-num-big">05</div>
+    <div class="section-header-content">
+      <p class="section-eyebrow">The capstone · ~12 min</p>
+      <h2 class="section-title">The <em>finale</em></h2>
+      <p class="section-desc">A multi-panel publication-quality figure. The kind you see in research papers and data journalism. Yours to download and put your name on.</p>
+    </div>
+  </div>
+
+  <div class="time-chip">⏱ ~12 minutes · read the code before running it</div>
+
+  <div class="finale-badge">★ &nbsp;Capstone piece — save &amp; share this one</div>
+
+  <p class="prose">This is a <strong>four-panel figure</strong> — a layout technique from scientific publishing that tells a richer story than any single chart can. Each panel uses a different chart type, but they share a color palette and title system that makes them feel like one cohesive piece.</p>
+
+  <p class="prose">Read through the entire code first. Every section is commented. By the time you run it, you should understand every line.</p>
+
+  <div class="code-wrap">
+    <div class="code-label">Cell 8 — The final publication-quality figure</div>
+    <div class="code-block">
+      <div class="code-topbar">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span class="code-filename">final_visualization.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <div class="code-body"><span class="cm"># ─────────────────────────────────────────────────
+# SETUP: Define our custom color palette
+# These hex codes are chosen for contrast & accessibility
+# ─────────────────────────────────────────────────</span>
+SPECIES_COLORS = {
+    <span class="str">"Adelie"</span>:    <span class="str">"#E8593C"</span>,   <span class="cm"># warm coral-red</span>
+    <span class="str">"Chinstrap"</span>: <span class="str">"#3B8BD4"</span>,   <span class="cm"># ocean blue</span>
+    <span class="str">"Gentoo"</span>:    <span class="str">"#1D9E75"</span>    <span class="cm"># Antarctic teal</span>
+}
+
+<span class="cm"># Remove rows with any missing values</span>
+penguins_clean = penguins.dropna()
+
+<span class="cm"># Set the overall visual theme</span>
+sns.set_theme(style=<span class="str">"white"</span>, font_scale=<span class="num">0.9</span>)
+
+<span class="cm"># ─────────────────────────────────────────────────
+# LAYOUT: A 2×2 grid using GridSpec for precise control
+# figsize is the overall canvas in inches (width, height)
+# ─────────────────────────────────────────────────</span>
+fig = plt.figure(figsize=(<span class="num">14</span>, <span class="num">10</span>))
+gs  = fig.add_gridspec(<span class="num">2</span>, <span class="num">2</span>, hspace=<span class="num">0.45</span>, wspace=<span class="num">0.35</span>)
+
+ax1 = fig.add_subplot(gs[<span class="num">0</span>, <span class="num">0</span>])  <span class="cm"># top-left</span>
+ax2 = fig.add_subplot(gs[<span class="num">0</span>, <span class="num">1</span>])  <span class="cm"># top-right</span>
+ax3 = fig.add_subplot(gs[<span class="num">1</span>, <span class="num">0</span>])  <span class="cm"># bottom-left</span>
+ax4 = fig.add_subplot(gs[<span class="num">1</span>, <span class="num">1</span>])  <span class="cm"># bottom-right</span>
+
+<span class="cm"># ─────────────────────────────────────────────────
+# PANEL A · Scatter: Flipper length vs body mass
+# Shows the relationship between two continuous variables
+# ─────────────────────────────────────────────────</span>
+sns.scatterplot(
+    data=penguins_clean, x=<span class="str">"flipper_length_mm"</span>, y=<span class="str">"body_mass_g"</span>,
+    hue=<span class="str">"species"</span>, style=<span class="str">"species"</span>,
+    palette=SPECIES_COLORS,
+    alpha=<span class="num">0.75</span>, s=<span class="num">55</span>, ax=ax1, legend=<span class="kw">False</span>
+)
+ax1.set_title(<span class="str">"A · Flipper length vs body mass"</span>, fontweight=<span class="str">"bold"</span>, fontsize=<span class="num">11</span>)
+ax1.set_xlabel(<span class="str">"Flipper length (mm)"</span>)
+ax1.set_ylabel(<span class="str">"Body mass (g)"</span>)
+ax1.spines[[<span class="str">"top"</span>, <span class="str">"right"</span>]].set_visible(<span class="kw">False</span>)
+
+<span class="cm"># ─────────────────────────────────────────────────
+# PANEL B · Violin: Body mass distribution by species
+# A violin shows the full distribution shape, not just the mean
+# The width at each height = how many penguins are that size
+# ─────────────────────────────────────────────────</span>
+sns.violinplot(
+    data=penguins_clean, x=<span class="str">"species"</span>, y=<span class="str">"body_mass_g"</span>,
+    palette=SPECIES_COLORS,
+    inner=<span class="str">"quartile"</span>,   <span class="cm"># shows median + quartiles inside</span>
+    ax=ax2
+)
+ax2.set_title(<span class="str">"B · Body mass distribution"</span>, fontweight=<span class="str">"bold"</span>, fontsize=<span class="num">11</span>)
+ax2.set_xlabel(<span class="str">"Species"</span>)
+ax2.set_ylabel(<span class="str">"Body mass (g)"</span>)
+ax2.spines[[<span class="str">"top"</span>, <span class="str">"right"</span>]].set_visible(<span class="kw">False</span>)
+
+<span class="cm"># ─────────────────────────────────────────────────
+# PANEL C · Heatmap: Average mass by island & species
+# pivot_table() reshapes data — like Excel's PivotTable
+# ─────────────────────────────────────────────────</span>
+pivot = penguins_clean.pivot_table(
+    values=<span class="str">"body_mass_g"</span>,
+    index=<span class="str">"island"</span>,
+    columns=<span class="str">"species"</span>,
+    aggfunc=<span class="str">"mean"</span>         <span class="cm"># "mean", "count", "sum" all work</span>
+)
+sns.heatmap(
+    pivot, annot=<span class="kw">True</span>, fmt=<span class="str">".0f"</span>,  <span class="cm"># show values, no decimals</span>
+    cmap=<span class="str">"YlOrRd"</span>,                  <span class="cm"># yellow → orange → red</span>
+    linewidths=<span class="num">0.5</span>,
+    cbar_kws={<span class="str">"label"</span>: <span class="str">"Avg mass (g)"</span>},
+    ax=ax3
+)
+ax3.set_title(<span class="str">"C · Average mass by island & species"</span>, fontweight=<span class="str">"bold"</span>, fontsize=<span class="num">11</span>)
+ax3.set_xlabel(<span class="str">"Species"</span>)
+ax3.set_ylabel(<span class="str">"Island"</span>)
+
+<span class="cm"># ─────────────────────────────────────────────────
+# PANEL D · Histogram: Bill depth by species
+# Overlapping histograms show how distributions compare
+# ─────────────────────────────────────────────────</span>
+<span class="kw">for</span> species, color <span class="kw">in</span> SPECIES_COLORS.items():
+    subset = penguins_clean[penguins_clean[<span class="str">"species"</span>] == species]
+    ax4.hist(
+        subset[<span class="str">"bill_depth_mm"</span>],
+        bins=<span class="num">18</span>, alpha=<span class="num">0.55</span>,
+        color=color, label=species,
+        edgecolor=<span class="str">"white"</span>, linewidth=<span class="num">0.5</span>
+    )
+
+ax4.set_title(<span class="str">"D · Bill depth distribution"</span>, fontweight=<span class="str">"bold"</span>, fontsize=<span class="num">11</span>)
+ax4.set_xlabel(<span class="str">"Bill depth (mm)"</span>)
+ax4.set_ylabel(<span class="str">"Count"</span>)
+ax4.legend(title=<span class="str">"Species"</span>, fontsize=<span class="num">9</span>)
+ax4.spines[[<span class="str">"top"</span>, <span class="str">"right"</span>]].set_visible(<span class="kw">False</span>)
+
+<span class="cm"># ─────────────────────────────────────────────────
+# TITLE: A master headline for the whole figure
+# suptitle sits above all panels
+# ─────────────────────────────────────────────────</span>
+fig.suptitle(
+    <span class="str">"Palmer Penguins · Antarctic Species Analysis"</span>,
+    fontsize=<span class="num">17</span>, fontweight=<span class="str">"bold"</span>, y=<span class="num">1.02</span>
+)
+fig.text(
+    <span class="num">0.5</span>, <span class="num">0.985</span>,
+    <span class="str">"Data: Palmer Station LTER / K. Gorman (2020) · Visualization by [your name]"</span>,
+    ha=<span class="str">"center"</span>, fontsize=<span class="num">9</span>, color=<span class="str">"#999"</span>
+)
+
+<span class="cm"># ─────────────────────────────────────────────────
+# EXPORT: Save as a high-resolution PNG image
+# dpi=200 is print-quality. bbox_inches="tight" prevents clipping
+# ─────────────────────────────────────────────────</span>
+plt.savefig(
+    <span class="str">"penguins_analysis.png"</span>,
+    dpi=<span class="num">200</span>,
+    bbox_inches=<span class="str">"tight"</span>,
+    facecolor=<span class="str">"white"</span>
+)
+plt.show()
+<span class="fn">print</span>(<span class="str">"✅ Saved! Go to Files (folder icon) → right-click → Download"</span>)</div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <span class="callout-icon">💾</span>
+    <div><strong>To download your chart:</strong> In Colab, click the <strong>folder icon</strong> in the left sidebar. Find <code>penguins_analysis.png</code>. Right-click it and choose <strong>Download</strong>. That's a 200 DPI image — it'll look sharp on screen and in print.</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3 style="font-family:var(--serif);font-size:22px;font-weight:500;margin-bottom:20px">Bonus challenges</h3>
+  <p class="prose">Finished early? These will each take 2–5 minutes and make the visualization your own.</p>
+
+  <div class="bonus-grid">
+    <div class="bonus-card">
+      <div class="bonus-card-tag">Challenge 1</div>
+      <div class="bonus-card-title">Make it yours</div>
+      <div class="bonus-card-desc">Swap the three hex codes in <code>SPECIES_COLORS</code> for your own palette. Try your RSO's brand colors. Re-run and see how dramatically the feel changes.</div>
+    </div>
+    <div class="bonus-card">
+      <div class="bonus-card-tag">Challenge 2</div>
+      <div class="bonus-card-title">Change a variable</div>
+      <div class="bonus-card-desc">In panel D, replace <code>"bill_depth_mm"</code> with <code>"flipper_length_mm"</code>. How do the three distributions shift? What does this tell you about the species?</div>
+    </div>
+    <div class="bonus-card">
+      <div class="bonus-card-tag">Challenge 3</div>
+      <div class="bonus-card-title">Credit yourself</div>
+      <div class="bonus-card-desc">Edit the subtitle line to replace <code>[your name]</code> with your actual name. This is published work — it should have your name on it.</div>
+    </div>
+    <div class="bonus-card">
+      <div class="bonus-card-tag">Challenge 4</div>
+      <div class="bonus-card-title">New dataset</div>
+      <div class="bonus-card-desc">Replace <code>sns.load_dataset("penguins")</code> with <code>"tips"</code>, <code>"diamonds"</code>, or <code>"titanic"</code> and rebuild the figure. Different shapes will emerge.</div>
+    </div>
+  </div>
+
+  <div class="complete-banner">
+    <div class="complete-title">You <em>built</em> that.</div>
+    <p class="complete-sub">From zero experience to a publication-quality data visualization in under 45 minutes. That's real. The same tools, libraries, and techniques are used in research labs, design studios, and newsrooms worldwide.</p>
+    <div class="complete-actions">
+      <button class="btn-primary" onclick="goTo(0)" style="background:var(--cream);color:var(--ink)">
+        ↩ Start over
+      </button>
+      <a class="btn-ghost" href="https://seaborn.pydata.org/examples/index.html" target="_blank" style="color:var(--cream);border-color:rgba(247,243,237,.3)">
+        Explore more examples ↗
+      </a>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:48px;padding-bottom:40px">
+    <p style="font-size:12.5px;color:var(--ink-hint)">Data: Palmer Station LTER / K. Gorman (2020). Workshop by your RSO. Site built with Claude.</p>
+  </div>
+
+</section>
+
+<script>
+// ─── State ───
+let current = -1; // -1 = hero
+
+// ─── Navigation ───
+function goTo(n) {
+  // Hide hero
+  document.getElementById('hero-section').style.display = 'none';
+
+  // Hide all sections
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+
+  // Show target
+  const target = document.getElementById('sec-' + n);
+  if (target) {
+    target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Update nav steps
+  document.querySelectorAll('.nav-step').forEach((step, i) => {
+    step.classList.remove('active', 'done');
+    if (i < n) step.classList.add('done');
+    else if (i === n) step.classList.add('active');
+  });
+
+  // Update progress bar
+  const pct = ((n + 1) / 5) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  current = n;
+}
+
+// ─── Copy code ───
+function copyCode(btn) {
+  const block = btn.closest('.code-block').querySelector('.code-body');
+  // Get text content without HTML tags
+  const text = block.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2200);
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2200);
+  });
+}
+
+// ─── Scroll reveal ───
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ─── Keyboard navigation ───
+document.addEventListener('keydown', (e) => {
+  if (current === -1) return;
+  if (e.key === 'ArrowRight' && current < 4) goTo(current + 1);
+  if (e.key === 'ArrowLeft' && current > 0) goTo(current - 1);
+});
+</script>
+</body>
+</html>
