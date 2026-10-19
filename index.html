@@ -436,6 +436,27 @@ body{font-family:var(--sans);background:var(--cream);color:var(--ink);line-heigh
   #about-section{padding:80px 24px}
 }
 
+/* Phone layout */
+@media(max-width:600px){
+  .nav{padding:0 16px}
+  .hero{padding:90px 20px 48px;gap:28px}
+  .dfa-scene{width:min(300px,76vw);height:min(300px,76vw)}
+  .hero-meta{gap:16px 24px;margin-top:44px}
+  .hero-meta-div{display:none}
+  .section,#about-section{padding:48px 20px 180px}
+  .section-header{gap:14px;margin-bottom:36px;padding-bottom:28px}
+  .section-num-big{font-size:56px}
+  .code-body{font-size:12px;padding:16px;line-height:1.7}
+  .callout{padding:14px 16px}
+  .nav-row{flex-wrap:wrap;gap:16px}
+  .complete-banner{padding:40px 24px}
+  .complete-title{font-size:30px}
+  .about-cta-banner{padding:28px 24px}
+  .narrator-float{left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));width:auto}
+  .narrator-float.minimised{left:auto;width:220px}
+  .narrator-subs{max-height:120px}
+}
+
 </style>
 </head>
 <body>
